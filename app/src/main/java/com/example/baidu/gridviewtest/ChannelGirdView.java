@@ -9,11 +9,8 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.TranslateAnimation;
 import android.widget.AdapterView;
-import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.GridView;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +27,8 @@ public class ChannelGirdView extends FrameLayout {
 
     private ChannelMineAdapter mChannelMineAdatper;
     private ChannelHotAdapter mChannelHotAdapter;
-    private boolean mDelStatusFlag, mCurrentClickIsMine, mDoDelete;
+    private boolean mDelStatusFlag, mCurrentClickIsMine;
+    private static boolean mDoDelete;
     private int mItemHeight, mItemWidth;
     private int mCurrentClickIndex;
 
@@ -44,6 +42,14 @@ public class ChannelGirdView extends FrameLayout {
         super(context, attrs);
         mContext = context;
         init();
+    }
+
+    public static boolean isDoDelete() {
+        return mDoDelete;
+    }
+
+    public static void setDoDelete(boolean doDelete) {
+        mDoDelete = doDelete;
     }
 
     private void init() {
@@ -73,7 +79,7 @@ public class ChannelGirdView extends FrameLayout {
      * @return
      */
     private int getItemVerticalDistance() {
-        return mChannelWallMine.getVerticalSpacing() + mItemWidth;
+        return mChannelWallMine.getVerticalSpacing() + mItemHeight;
     }
 
     /**
@@ -82,7 +88,7 @@ public class ChannelGirdView extends FrameLayout {
      * @return
      */
     private int getItemHorizontalDistance() {
-        return mChannelWallMine.getHorizontalSpacing() + mItemHeight;
+        return mChannelWallMine.getHorizontalSpacing() + mItemWidth;
     }
 
     /**
@@ -170,61 +176,26 @@ public class ChannelGirdView extends FrameLayout {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            ViewHolder holder;
-            if (convertView == null) {
-                holder = new ViewHolder();
-                convertView = LayoutInflater.from(mContext).inflate(R.layout.grid_icon_mine,
-                        null);
-                holder.tbDelOrAdd = (ImageView) convertView.findViewById(R.id.bt_del);
-                holder.ivIcon = (ImageView) convertView.findViewById(R.id.icon);
-                holder.tvName = (TextView) convertView.findViewById(R.id.name);
-                convertView.setTag(holder);
-            } else {
-                holder = (ViewHolder) convertView.getTag();
-            }
+            convertView = initView(convertView);
+
             mItemHeight = convertView.getMeasuredHeight();
             mItemWidth = convertView.getMeasuredWidth();
 
-            if (mDoDelete) {
-                if (!mCurrentClickIsMine && position == mChannelList.size() - 1) {
-                    Animation animation = AnimationUtils.loadAnimation(mContext, R.anim.anim_add);
-                    convertView.setAnimation(animation);
-                    animation.setAnimationListener(new Animation.AnimationListener() {
-                        @Override
-                        public void onAnimationStart(Animation animation) {
-
-                        }
-
-                        @Override
-                        public void onAnimationEnd(Animation animation) {
-                            mDoDelete = false;
-                        }
-
-                        @Override
-                        public void onAnimationRepeat(Animation animation) {
-
-                        }
-                    });
-                    animation.startNow();
-                } else if (mCurrentClickIsMine && position >= mCurrentClickIndex) {
-                    Animation animation;
-                    /* 判断是不是需要上移一行 */
-                    if ((position + 1) % 4 != 0) {
-                        animation = new TranslateAnimation(getItemVerticalDistance(), 0, 0, 0);
-                    } else {
-                        animation = new TranslateAnimation(0 - 4 * getItemVerticalDistance(), 0,
-                                getItemHorizontalDistance(), 0);
-                    }
-                    animation.setDuration(300);
-                    convertView.setAnimation(animation);
-                    animation.startNow();
-                }
-            }
-            holder.tvName.setText(mChannelList.get(position).getItemText());
-            holder.ivIcon.setImageResource(mChannelList.get(position).getItemImageRes());
-            holder.tbDelOrAdd.setVisibility(mDelStatusFlag ? View.VISIBLE : View.GONE);
+            playAnimation(mCurrentClickIsMine, position, mCurrentClickIndex);
+            /* 设置gridview中item内容 */
+            setItemContent(mDelStatusFlag, position);
 
             return convertView;
+        }
+
+        @Override
+        protected int getVerticalDistance() {
+            return getItemVerticalDistance();
+        }
+
+        @Override
+        protected int getHorizontalDistance() {
+            return getItemHorizontalDistance();
         }
     }
 
@@ -236,63 +207,26 @@ public class ChannelGirdView extends FrameLayout {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            ViewHolder holder;
-            if (convertView == null) {
-                holder = new ViewHolder();
-                convertView = LayoutInflater.from(mContext).inflate(R.layout.grid_icon_hot,
-                        null);
-                holder.tbDelOrAdd = (ImageView) convertView.findViewById(R.id.bt_add);
-                holder.ivIcon = (ImageView) convertView.findViewById(R.id.icon);
-                holder.tvName = (TextView) convertView.findViewById(R.id.name);
-                convertView.setTag(holder);
-            } else {
-                holder = (ViewHolder) convertView.getTag();
-            }
+            convertView = initView(convertView);
 
             mItemHeight = convertView.getMeasuredHeight();
             mItemWidth = convertView.getMeasuredWidth();
 
-            if (mDoDelete) {
-                if (mCurrentClickIsMine && position == mChannelList.size() - 1) {
-                    Animation animation = AnimationUtils.loadAnimation(mContext, R.anim.anim_add);
-                    convertView.setAnimation(animation);
-                    animation.setAnimationListener(new Animation.AnimationListener() {
-                        @Override
-                        public void onAnimationStart(Animation animation) {
-
-                        }
-
-                        @Override
-                        public void onAnimationEnd(Animation animation) {
-                            mDoDelete = false;
-                        }
-
-                        @Override
-                        public void onAnimationRepeat(Animation animation) {
-
-                        }
-                    });
-                    animation.startNow();
-                } else if (!mCurrentClickIsMine && position >= mCurrentClickIndex) {
-                    Animation animation;
-                    /* 判断是不是需要上移一行 */
-                    if ((position + 1) % 4 != 0) {
-                        animation = new TranslateAnimation(getItemVerticalDistance(), 0, 0, 0);
-                    } else {
-                        animation = new TranslateAnimation(0 - 4 * getItemVerticalDistance(), 0,
-                                getItemHorizontalDistance(), 0);
-                    }
-                    animation.setDuration(300);
-                    convertView.setAnimation(animation);
-                    animation.startNow();
-                }
-            }
-
-            holder.tvName.setText(mChannelList.get(position).getItemText());
-            holder.ivIcon.setImageResource(mChannelList.get(position).getItemImageRes());
-            holder.tbDelOrAdd.setVisibility(mDelStatusFlag ? View.VISIBLE : View.GONE);
+            playAnimation(!mCurrentClickIsMine, position, mCurrentClickIndex);
+            /* 设置gridview中item内容 */
+            setItemContent(mDelStatusFlag, position);
 
             return convertView;
+        }
+
+        @Override
+        protected int getVerticalDistance() {
+            return getItemVerticalDistance();
+        }
+
+        @Override
+        protected int getHorizontalDistance() {
+            return getItemHorizontalDistance();
         }
     }
 }
