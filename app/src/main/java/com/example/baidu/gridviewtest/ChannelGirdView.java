@@ -2,7 +2,9 @@ package com.example.baidu.gridviewtest;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -11,6 +13,7 @@ import android.view.animation.TranslateAnimation;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.GridView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,10 +30,33 @@ public class ChannelGirdView extends FrameLayout {
 
     private ChannelMineAdapter mChannelMineAdatper;
     private ChannelHotAdapter mChannelHotAdapter;
-    private boolean mDelStatusFlag, mCurrentClickIsMine;
+
+    /**
+     * 状态标志
+     */
+    private boolean mEditStatusFlag, mCurrentClickIsMine, mIsDraging;
     private static boolean mDoDelete;
+
+    /**
+     * 条目的尺寸
+     */
     private int mItemHeight, mItemWidth;
+
+    /**
+     * 当前点击条目的序号
+     */
     private int mCurrentClickIndex;
+
+    /**
+     * 拖拽坐标
+     */
+    private float mDown_x, mDown_y, mMove_x, mMove_y, mUp_x, mUp_y;
+
+    /**
+     * 当前正在拖拽的控件
+     */
+    private View mCurrentDragingView;
+
 
     public ChannelGirdView(Context context) {
         super(context);
@@ -71,6 +97,8 @@ public class ChannelGirdView extends FrameLayout {
         OnChannelItemClick itemClickListener = new OnChannelItemClick();
         mChannelWallMine.setOnItemClickListener(itemClickListener);
         mChannelWallHot.setOnItemClickListener(itemClickListener);
+
+        mChannelWallMine.setOnTouchListener(new OnChannelItemTouch());
     }
 
     /**
@@ -119,11 +147,58 @@ public class ChannelGirdView extends FrameLayout {
         mChannelWallHot.setEnabled(clickable);
     }
 
+    public boolean isEditable() {
+        return mEditStatusFlag;
+    }
+
+    public void setEditable(boolean editable) {
+        mEditStatusFlag = editable;
+        refresh();
+    }
+
+    class OnChannelItemTouch implements OnTouchListener {
+
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN: {
+                    mMove_x = mDown_x = event.getX();
+                    mMove_y = mDown_y = event.getY();
+                    break;
+                }
+                case MotionEvent.ACTION_MOVE: {
+                    if (mIsDraging) {
+
+                        Animation animation = new TranslateAnimation(mMove_x - mDown_x, event
+                                .getX() - mDown_x,
+                                mMove_y - mDown_y, event.getY() - mDown_y);
+                        mCurrentDragingView.setAnimation(animation);
+                        animation.startNow();
+                        mMove_x = event.getX();
+                        mMove_y = event.getY();
+                    }
+
+                    break;
+                }
+                case MotionEvent.ACTION_BUTTON_PRESS: {
+                    mIsDraging = false;
+                    break;
+                }
+            }
+            return false;
+        }
+    }
+
     class OnChannelItemLongClick implements AdapterView.OnItemLongClickListener {
         @Override
         public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-            mDelStatusFlag = !mDelStatusFlag;
-            refresh();
+            if (mEditStatusFlag) {
+                mIsDraging = true;
+                mCurrentDragingView = view;
+            } else {
+                mEditStatusFlag = true;
+                refresh();
+            }
             return true;
         }
     }
@@ -132,7 +207,7 @@ public class ChannelGirdView extends FrameLayout {
         @Override
         public void onItemClick(final AdapterView<?> parent, View view, final int position, long
                 id) {
-            if (!mDelStatusFlag) {
+            if (!mEditStatusFlag) {
                 return;
             }
             mDoDelete = true;
@@ -183,7 +258,7 @@ public class ChannelGirdView extends FrameLayout {
 
             playAnimation(mCurrentClickIsMine, position, mCurrentClickIndex);
             /* 设置gridview中item内容 */
-            setItemContent(mDelStatusFlag, position);
+            setItemContent(mEditStatusFlag, position);
 
             return convertView;
         }
@@ -209,12 +284,15 @@ public class ChannelGirdView extends FrameLayout {
         public View getView(int position, View convertView, ViewGroup parent) {
             convertView = initView(convertView);
 
+            /* 在converView创建完成之后测量大小 */
             mItemHeight = convertView.getMeasuredHeight();
             mItemWidth = convertView.getMeasuredWidth();
 
+            /* 播放动画 */
             playAnimation(!mCurrentClickIsMine, position, mCurrentClickIndex);
+
             /* 设置gridview中item内容 */
-            setItemContent(mDelStatusFlag, position);
+            setItemContent(mEditStatusFlag, position);
 
             return convertView;
         }

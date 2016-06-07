@@ -2,6 +2,8 @@ package com.example.baidu.gridviewtest;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,5 +44,28 @@ public class MainActivity extends AppCompatActivity {
             mChannelWallHotItem.add(channelWallItem);
         }
         mChannelGridView.setData(mChannelWallMineItem, mChannelWallHotItem);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_edit: {
+                if (mChannelGridView.isEditable()) {
+                    mChannelGridView.setEditable(false);
+                    item.setTitle("编辑");
+                } else {
+                    mChannelGridView.setEditable(true);
+                    item.setTitle("完成");
+                }
+                break;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return true;
     }
 }

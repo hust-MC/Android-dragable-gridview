@@ -98,12 +98,12 @@ public abstract class ChannelBaseAdapter extends BaseAdapter {
                 animation.startNow();
             } else if (currentClickIsMe && position >= currentClickIndex) {
                 Animation animation;
-                    /* 判断是不是需要上移一行 */
+                /* 判断是不是需要上移一行 */
                 if ((position + 1) % 4 != 0) {
-                    animation = new TranslateAnimation(getVerticalDistance(), 0, 0, 0);
+                    animation = new TranslateAnimation(getHorizontalDistance(), 0, 0, 0);
                 } else {
-                    animation = new TranslateAnimation(0 - 4 * getVerticalDistance(), 0,
-                            getHorizontalDistance(), 0);
+                    animation = new TranslateAnimation(0 - 3 * getHorizontalDistance(), 0,
+                            getVerticalDistance(), 0);
                 }
                 animation.setDuration(300);
                 mConvertView.setAnimation(animation);
