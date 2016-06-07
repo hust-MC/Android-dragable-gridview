@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">GridViewTest</string>
+    <string name="channel_mine">我的频道</string>
+    <string name="channel_hot">热门频道</string>
+</resources>
