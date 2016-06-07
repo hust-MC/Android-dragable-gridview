@@ -13,7 +13,10 @@ public class MainActivity extends AppCompatActivity {
     List<ChannelWallItem> mChannelWallMineItem = new ArrayList<>();
     List<ChannelWallItem> mChannelWallHotItem = new ArrayList<>();
 
-    String mTitlesMine[] = {"电视剧", "电影", "综艺", "动漫", "搞笑", "娱乐", "美女", "专题"};
+    String mTitlesMine[] = {"电视剧", "电影", "综艺", "动漫", "搞笑", "娱乐", "美女", "专题", "电视剧", "电影", "综艺",
+            "动漫", "搞笑", "娱乐", "美女", "专题"
+            , "电视剧", "电影", "综艺", "动漫", "搞笑", "娱乐", "美女", "专题"
+    };
     String mTitlesHot[] = {"自拍秀", "新闻", "体育", "卫视直播"};
 
     ChannelGirdView mChannelGridView;

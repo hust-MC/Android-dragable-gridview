@@ -180,7 +180,7 @@ public class ChannelGirdView extends FrameLayout {
 
                     break;
                 }
-                case MotionEvent.ACTION_BUTTON_PRESS: {
+                case MotionEvent.ACTION_UP: {
                     mIsDraging = false;
                     break;
                 }
