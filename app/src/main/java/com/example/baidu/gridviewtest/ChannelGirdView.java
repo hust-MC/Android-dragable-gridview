@@ -108,6 +108,11 @@ public class ChannelGirdView extends FrameLayout {
         notifyAllData();
     }
 
+    private void setGridViewClickable(boolean clickable) {
+        mChannelWallMine.setEnabled(clickable);
+        mChannelWallHot.setEnabled(clickable);
+    }
+
     class OnChannelItemLongClick implements AdapterView.OnItemLongClickListener {
         @Override
         public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
@@ -118,7 +123,6 @@ public class ChannelGirdView extends FrameLayout {
     }
 
     class OnChannelItemClick implements AdapterView.OnItemClickListener {
-
         @Override
         public void onItemClick(final AdapterView<?> parent, View view, final int position, long
                 id) {
@@ -141,15 +145,12 @@ public class ChannelGirdView extends FrameLayout {
             animation.setAnimationListener(new Animation.AnimationListener() {
                 @Override
                 public void onAnimationStart(Animation animation) {
+                    setGridViewClickable(false);
                 }
 
                 @Override
                 public void onAnimationEnd(Animation animation) {
-                    if (mCurrentClickIsMine && position != mChannelWallMineItems.size()) {
-                        TranslateAnimation translateAnimation = new TranslateAnimation(0,
-                                0 - getItemVerticalDistance(), 0, 0);
-                        translateAnimation.setDuration(1000);
-                    }
+                    setGridViewClickable(true);
                     notifyAllData();
                 }
 
@@ -160,7 +161,6 @@ public class ChannelGirdView extends FrameLayout {
             animation.startNow();
         }
     }
-
 
     public class ChannelMineAdapter extends ChannelBaseAdapter {
 
@@ -189,6 +189,22 @@ public class ChannelGirdView extends FrameLayout {
                 if (!mCurrentClickIsMine && position == mChannelList.size() - 1) {
                     Animation animation = AnimationUtils.loadAnimation(mContext, R.anim.anim_add);
                     convertView.setAnimation(animation);
+                    animation.setAnimationListener(new Animation.AnimationListener() {
+                        @Override
+                        public void onAnimationStart(Animation animation) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animation animation) {
+                            mDoDelete = false;
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animation animation) {
+
+                        }
+                    });
                     animation.startNow();
                 } else if (mCurrentClickIsMine && position >= mCurrentClickIndex) {
                     Animation animation;
@@ -240,6 +256,22 @@ public class ChannelGirdView extends FrameLayout {
                 if (mCurrentClickIsMine && position == mChannelList.size() - 1) {
                     Animation animation = AnimationUtils.loadAnimation(mContext, R.anim.anim_add);
                     convertView.setAnimation(animation);
+                    animation.setAnimationListener(new Animation.AnimationListener() {
+                        @Override
+                        public void onAnimationStart(Animation animation) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animation animation) {
+                            mDoDelete = false;
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animation animation) {
+
+                        }
+                    });
                     animation.startNow();
                 } else if (!mCurrentClickIsMine && position >= mCurrentClickIndex) {
                     Animation animation;
