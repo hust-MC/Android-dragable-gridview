@@ -221,7 +221,6 @@ public class ChannelGirdView extends FrameLayout {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             ViewHolder holder;
-            ~
             if (convertView == null) {
                 holder = new ViewHolder();
                 convertView = LayoutInflater.from(mContext).inflate(R.layout.grid_icon_hot,
@@ -246,13 +245,10 @@ public class ChannelGirdView extends FrameLayout {
                     Animation animation;
                     /* 判断是不是需要上移一行 */
                     if ((position + 1) % 4 != 0) {
-                        animation = new TranslateAnimation(getItemVerticalDistance(),
-                                0, 0,
-                                0);
+                        animation = new TranslateAnimation(getItemVerticalDistance(), 0, 0, 0);
                     } else {
-                        animation = new TranslateAnimation(0 - 4 * getItemVerticalDistance(),
-                                0, getItemHorizontalDistance(),
-                                0);
+                        animation = new TranslateAnimation(0 - 4 * getItemVerticalDistance(), 0,
+                                getItemHorizontalDistance(), 0);
                     }
                     animation.setDuration(300);
                     convertView.setAnimation(animation);
